@@ -1,27 +1,45 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from .models import Product
 from math import ceil
+
 # Create your views here.
+from django.http import HttpResponse
+
 def index(request):
-    products = Product.objects.all()
-    print(" \n pro \n  ",products)
-    n = len(products)
-    nSlides = n//4 + ceil((n/4)-(n//4))
-    parms = {'no_of_slides':nSlides, 'range' : range(nSlides),'product': products}
-    return render(request,"shop/index.html", parms)
+    # products = Product.objects.all()
+    # print(products)
+    # n = len(products)
+    # nSlides = n//4 + ceil((n/4)-(n//4))
 
+    allProds = []
+    catprods = Product.objects.values('category', 'id')
+    cats = {item['category'] for item in catprods}
+    for cat in cats:
+        prod = Product.objects.filter(category=cat)
+        n = len(prod)
+        nSlides = n // 4 + ceil((n / 4) - (n // 4))
+        allProds.append([prod, range(1, nSlides), nSlides])
 
+    # params = {'no_of_slides':nSlides, 'range': range(1,nSlides),'product': products}
+    # allProds = [[products, range(1, nSlides), nSlides],
+    #             [products, range(1, nSlides), nSlides]]
+    params = {'allProds':allProds}
+    return render(request, 'shop/index.html', params)
 
 def About(request):
     return render(request, 'shop/about.html')
-def Tracker(request):
-    return HttpResponse("Tracker")
+
 def Contact(request):
-    return HttpResponse("Conntact")
+    return HttpResponse("We are at contact")
+
+def Tracker(request):
+    return HttpResponse("We are at tracker")
+
 def Search(request):
-    return HttpResponse("Search")
-def Productview(request):
-    return HttpResponse("ProductView")
+    return HttpResponse("We are at search")
+
+def ProductView(request):
+    return HttpResponse("We are at product view")
+
 def Checkout(request):
-    return HttpResponse("Checkout")
+    return HttpResponse("We are at checkout")
