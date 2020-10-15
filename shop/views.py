@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Product
+from .models import Product , Contact, Orders 
 from math import ceil
 
 # Create your views here.
@@ -26,20 +26,45 @@ def index(request):
     params = {'allProds':allProds}
     return render(request, 'shop/index.html', params)
 
-def About(request):
+
+def about(request):
     return render(request, 'shop/about.html')
 
-def Contact(request):
-    return HttpResponse("We are at contact")
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name',"")
+        email = request.POST.get('email',"")
+        phone = request.POST.get('phone',"")
+        desc = request.POST.get('desc',"")
+        contact = Contact(name=name, email=email, phone=phone, desc=desc)
+        contact.save()
+    return render(request, 'shop/contact.html')
 
-def Tracker(request):
-    return HttpResponse("We are at tracker")
+def tracker(request):
+    return render(request, 'shop/tracker.html')
 
-def Search(request):
-    return HttpResponse("We are at search")
+def search(request):
+    return render(request, 'shop/search.html')
 
-def ProductView(request):
-    return HttpResponse("We are at product view")
+def productView(request, myid):
+      # Fetch the product using the id
+    product = Product.objects.filter(id=myid)
+    return render(request, 'shop/productView.html', {'product':product[0]})
 
-def Checkout(request):
-    return HttpResponse("We are at checkout")
+def checkout(request):
+    if request.method=="POST":
+        items_json = request.POST.get('itemsJson', '')
+        name = request.POST.get('name', '')
+        email = request.POST.get('email', '')
+        address = request.POST.get('address1', '') + " " + request.POST.get('address2', '')
+        city = request.POST.get('city', '')
+        state = request.POST.get('state', '')
+        zip_code = request.POST.get('zip_code', '')
+        phone = request.POST.get('phone', '')
+        order = Orders(items_json=items_json, name=name, email=email, address=address, city=city,
+                       state=state, zip_code=zip_code, phone=phone)
+        order.save()
+        thank = True
+        id = order.order_id
+        return render(request, 'shop/checkout.html', {'thank':thank, 'id': id})
+    return render(request, 'shop/checkout.html')
